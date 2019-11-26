@@ -17,8 +17,8 @@ package main
 import (
 	"os"
 
-	"github.com/palantir/godel-conjure-plugin/cmd"
-	"github.com/palantir/godel/framework/pluginapi/v2/pluginapi"
+	"github.com/palantir/godel-conjure-plugin/v4/cmd"
+	"github.com/palantir/godel/v2/framework/pluginapi/v2/pluginapi"
 )
 
 func main() {
