@@ -19,14 +19,24 @@ import (
 	"fmt"
 	"regexp"
 	"text/template"
+
+	"github.com/palantir/distgo/distgo"
+	gitversioner "github.com/palantir/distgo/projectversioner/git"
 )
 
 type RenderedProductDependencyProvider interface {
 	RenderedProductDependencies() ([]RenderedProductDependency, error)
 }
 
+func NewRenderedProductDependencyProvider(params []ProductDependencyParam, versionProvider VersionProvider) RenderedProductDependencyProvider {
+	return &renderedProductDependencyProviderImpl{
+		params:          params,
+		versionProvider: versionProvider,
+	}
+}
+
 type renderedProductDependencyProviderImpl struct {
-	params []ProductDependencyParam
+	params          []ProductDependencyParam
 	versionProvider VersionProvider
 }
 
@@ -88,10 +98,10 @@ func (p *ProductDependencyParam) RenderProductDependency(versionProvider Version
 	}
 
 	return RenderedProductDependency{
-		ProductGroup: p.ProductGroup,
-		ProductName: p.ProductGroup,
-		MinimumVersion: renderedMinVersion,
-		MaximumVersion: renderedMaxVersion,
+		ProductGroup:       p.ProductGroup,
+		ProductName:        p.ProductGroup,
+		MinimumVersion:     renderedMinVersion,
+		MaximumVersion:     renderedMaxVersion,
 		RecommendedVersion: renderedRecommendedVersion,
 	}, nil
 }
@@ -142,6 +152,22 @@ func (v templateProjectVersion) partAtPos(pos int) (string, error) {
 
 type VersionProvider interface {
 	Version() (string, error)
+}
+
+func NewProjectVersionProvider(projectDir string) VersionProvider {
+	return &gitVersioner{
+		versioner:  gitversioner.New(),
+		projectDir: projectDir,
+	}
+}
+
+type gitVersioner struct {
+	versioner  distgo.ProjectVersioner
+	projectDir string
+}
+
+func (v *gitVersioner) Version() (string, error) {
+	return v.versioner.ProjectVersion(v.projectDir)
 }
 
 // renderVersionTemplate renders the provided versionTemplateContent using the provided projectVersionProvider to

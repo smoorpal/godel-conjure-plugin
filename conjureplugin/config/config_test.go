@@ -247,7 +247,7 @@ func TestConjurePluginConfigToParam(t *testing.T) {
 				Params: map[string]conjureplugin.ConjureProjectParam{
 					"project-1": {
 						OutputDir:  "outputDir",
-						IRProvider: conjureplugin.NewLocalYAMLIRProvider("local/yaml-dir"),
+						IRProvider: conjureplugin.NewLocalYAMLIRProvider("local/yaml-dir", nil),
 						Publish:    true,
 					},
 				},
@@ -272,7 +272,7 @@ func TestConjurePluginConfigToParam(t *testing.T) {
 				Params: map[string]conjureplugin.ConjureProjectParam{
 					"project-1": {
 						OutputDir:  "outputDir",
-						IRProvider: conjureplugin.NewLocalYAMLIRProvider("input.yml"),
+						IRProvider: conjureplugin.NewLocalYAMLIRProvider("input.yml", nil),
 						Publish:    true,
 					},
 				},
@@ -303,7 +303,7 @@ func TestConjurePluginConfigToParam(t *testing.T) {
 			},
 		},
 	} {
-		got, err := tc.in.ToParams()
+		got, err := tc.in.ToParams(nil)
 		require.NoError(t, err, "Case %d", i)
 		assert.Equal(t, tc.want, got, "Case %d", i)
 	}

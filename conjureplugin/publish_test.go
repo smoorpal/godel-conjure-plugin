@@ -69,7 +69,7 @@ projects:
 
 	var cfg config.ConjurePluginConfig
 	require.NoError(t, yaml.Unmarshal(pluginConfigYML, &cfg))
-	params, err := cfg.ToParams()
+	params, err := cfg.ToParams(nil)
 	require.NoError(t, err, "failed to parse config set")
 
 	outputBuf := &bytes.Buffer{}

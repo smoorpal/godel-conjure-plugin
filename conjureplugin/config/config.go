@@ -33,7 +33,7 @@ func ToConjurePluginConfig(in *ConjurePluginConfig) *v1.ConjurePluginConfig {
 	return (*v1.ConjurePluginConfig)(in)
 }
 
-func (c *ConjurePluginConfig) ToParams() (conjureplugin.ConjureProjectParams, error) {
+func (c *ConjurePluginConfig) ToParams(versionProvider conjureplugin.VersionProvider) (conjureplugin.ConjureProjectParams, error) {
 	var keys []string
 	for k := range c.ProjectConfigs {
 		keys = append(keys, k)
@@ -42,7 +42,7 @@ func (c *ConjurePluginConfig) ToParams() (conjureplugin.ConjureProjectParams, er
 
 	params := make(map[string]conjureplugin.ConjureProjectParam)
 	for key, currConfig := range c.ProjectConfigs {
-		irProvider, err := (*IRLocatorConfig)(&currConfig.IRLocator).ToIRProvider()
+		irProvider, err := (*IRLocatorConfig)(&currConfig.IRLocator).ToIRProvider(versionProvider)
 		if err != nil {
 			return conjureplugin.ConjureProjectParams{}, errors.Wrapf(err, "failed to convert configuration for %s to provider", key)
 		}
@@ -79,7 +79,7 @@ func ToIRLocatorConfig(in *IRLocatorConfig) *v1.IRLocatorConfig {
 	return (*v1.IRLocatorConfig)(in)
 }
 
-func (cfg *IRLocatorConfig) ToIRProvider() (conjureplugin.IRProvider, error) {
+func (cfg *IRLocatorConfig) ToIRProvider(versionProvider conjureplugin.VersionProvider) (conjureplugin.IRProvider, error) {
 	if cfg.Locator == "" {
 		return nil, errors.Errorf("locator cannot be empty")
 	}
@@ -108,11 +108,16 @@ func (cfg *IRLocatorConfig) ToIRProvider() (conjureplugin.IRProvider, error) {
 		}
 	}
 
+	var productDependencyParams []conjureplugin.ProductDependencyParam
+	for _, cfg := range cfg.ProductDependencies {
+		productDependencyParams = append(productDependencyParams, cfg.ToProductDependencyParam())
+	}
+
 	switch locatorType {
 	case v1.LocatorTypeRemote:
 		return conjureplugin.NewHTTPIRProvider(cfg.Locator), nil
 	case v1.LocatorTypeYAML:
-		return conjureplugin.NewLocalYAMLIRProvider(cfg.Locator), nil
+		return conjureplugin.NewLocalYAMLIRProvider(cfg.Locator, conjureplugin.NewRenderedProductDependencyProvider(productDependencyParams, versionProvider)), nil
 	case v1.LocatorTypeIRFile:
 		return conjureplugin.NewLocalFileIRProvider(cfg.Locator), nil
 	default:

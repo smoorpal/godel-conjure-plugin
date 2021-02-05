@@ -77,8 +77,8 @@ func (cfg *IRLocatorConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 // ProductDependencyConfig represents the configuration that specifies a product dependency. May include templates that
 // are rendered at runtime.
 type ProductDependencyConfig struct {
-	ProductGroup       string `json:"product-group" yaml:"product-group"`
-	ProductName        string `json:"product-name" yaml:"product-name"`
+	ProductGroup string `json:"product-group" yaml:"product-group"`
+	ProductName  string `json:"product-name" yaml:"product-name"`
 
 	// MinimumVersion, MaximumVersion and RecommendedVersion are executed as Go templates to render the output version.
 	// The rendered output of MinimumVersion and RecommendedVersion must be a valid orderable SLS version, while the
@@ -95,8 +95,11 @@ type ProductDependencyConfig struct {
 
 func (cfg ProductDependencyConfig) ToProductDependencyParam() conjureplugin.ProductDependencyParam {
 	return conjureplugin.ProductDependencyParam{
-		ProductGroup: cfg.ProductGroup,
-
+		ProductGroup:       cfg.ProductGroup,
+		ProductName:        cfg.ProductName,
+		MinimumVersion:     cfg.MinimumVersion,
+		MaximumVersion:     cfg.MaximumVersion,
+		RecommendedVersion: cfg.RecommendedVersion,
 	}
 }
 

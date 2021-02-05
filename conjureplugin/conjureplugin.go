@@ -78,6 +78,10 @@ func conjureDefinitionFromParam(param ConjureProjectParam) (spec.ConjureDefiniti
 	if err != nil {
 		return spec.ConjureDefinition{}, err
 	}
+	//if err := ioutil.WriteFile(`/Users/nmiyake/Downloads/conjure-4.14.1/bin/my-out.json`, bytes, 0644); err != nil {
+	//	return spec.ConjureDefinition{}, err
+	//}
+	fmt.Println("IR bytes:", string(bytes))
 	conjureDefinition, err := conjurego.FromIRBytes(bytes)
 	if err != nil {
 		return spec.ConjureDefinition{}, err

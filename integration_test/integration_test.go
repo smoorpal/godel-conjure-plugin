@@ -70,10 +70,19 @@ types:
 `
 		yamlDir              = "yamlDir"
 		conjureYMLSubstitute = `
+version: 1
 projects:
   project-1:
     output-dir: conjure-output
-    ir-locator: ` + yamlDir + `
+    ir-locator: 
+      type: yaml
+      locator: ` + yamlDir + `
+      product-dependencies:
+        - product-group: com.palantir.foundry.streaming
+          product-name: stream-archiver
+          minimum-version: "{{ProjectVersion}}"
+          maximum-version: "1.x.x"
+          recommended-version: "1.2.3"
   project-2:
     output-dir: conjure-output2
     ir-locator:
@@ -108,6 +117,7 @@ projects:
 	outputBuf := &bytes.Buffer{}
 	runPluginCleanup, err := pluginapitester.RunPlugin(pluginapitester.NewPluginProvider(pluginPath), nil, "conjure", nil, projectDir, false, outputBuf)
 	defer runPluginCleanup()
+	fmt.Println(outputBuf.String())
 	require.NoError(t, err, outputBuf.String())
 
 	for _, outputName := range []string{"conjure-output", "conjure-output2"} {
