@@ -33,19 +33,31 @@ var _ IRProvider = &localYAMLIRProvider{}
 
 type localYAMLIRProvider struct {
 	path string
+	productDepProvider RenderedProductDependencyProvider
 }
 
 // NewLocalYAMLIRProvider returns an IRProvider that provides IR generated from local YAML. The provided path must be a
 // path to a Conjure YAML file or a directory that contains Conjure YAML files.
-func NewLocalYAMLIRProvider(path string) IRProvider {
+func NewLocalYAMLIRProvider(path string, productDepProvider RenderedProductDependencyProvider) IRProvider {
 	return &localYAMLIRProvider{
 		path: path,
+		productDepProvider: productDepProvider,
 	}
 }
 
 func (p *localYAMLIRProvider) IRBytes() ([]byte, error) {
+	renderedDeps, err := p.productDepProvider.RenderedProductDependencies()
+	if err != nil {
+		return nil, err
+	}
+	if len(renderedDeps) > 0 {
+
+	}
+
 	return conjureircli.InputPathToIR(p.path)
 }
+
+func yamlFileWithProductDepsSet
 
 func (p *localYAMLIRProvider) GeneratedFromYAML() bool {
 	return true

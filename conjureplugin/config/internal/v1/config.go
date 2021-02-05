@@ -15,6 +15,7 @@
 package v1
 
 import (
+	"github.com/palantir/godel-conjure-plugin/v6/conjureplugin"
 	"github.com/palantir/godel/v2/pkg/versionedconfig"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -55,15 +56,6 @@ type IRLocatorConfig struct {
 	ProductDependencies []ProductDependencyConfig `yaml:"product-dependencies"`
 }
 
-// ProductDependencyConfig represents a product dependency.
-type ProductDependencyConfig struct {
-	ProductGroup       string `json:"product-group" yaml:"product-group"`
-	ProductName        string `json:"product-name" yaml:"product-name"`
-	MinimumVersion     string `json:"minimum-version" yaml:"minimum-version"`
-	MaximumVersion     string `json:"maximum-version" yaml:"maximum-version"`
-	RecommendedVersion string `json:"recommended-version,omitempty" yaml:"recommended-version,omitempty"`
-}
-
 func (cfg *IRLocatorConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var strInput string
 	if err := unmarshal(&strInput); err == nil && strInput != "" {
@@ -80,6 +72,32 @@ func (cfg *IRLocatorConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 	}
 	*cfg = IRLocatorConfig(unmarshaledCfg)
 	return nil
+}
+
+// ProductDependencyConfig represents the configuration that specifies a product dependency. May include templates that
+// are rendered at runtime.
+type ProductDependencyConfig struct {
+	ProductGroup       string `json:"product-group" yaml:"product-group"`
+	ProductName        string `json:"product-name" yaml:"product-name"`
+
+	// MinimumVersion, MaximumVersion and RecommendedVersion are executed as Go templates to render the output version.
+	// The rendered output of MinimumVersion and RecommendedVersion must be a valid orderable SLS version, while the
+	// rendered output of MaximumVersion must be a valid SLS version matcher.
+	//
+	// The template environment supports the function "ProjectVersion", which renders the version of the enclosing
+	// project. "ProjectVersion.(Major|Minor|Patch)" renders the major, minor or patch version of the product if the
+	// project version matches the regular expression `^([0-9]+)\.([0-9]+)\.([0-9]+)` (if the project version does not
+	// match this regular expression, executing these functions will result in an error).
+	MinimumVersion     string `json:"minimum-version" yaml:"minimum-version"`
+	MaximumVersion     string `json:"maximum-version" yaml:"maximum-version"`
+	RecommendedVersion string `json:"recommended-version,omitempty" yaml:"recommended-version,omitempty"`
+}
+
+func (cfg ProductDependencyConfig) ToProductDependencyParam() conjureplugin.ProductDependencyParam {
+	return conjureplugin.ProductDependencyParam{
+		ProductGroup: cfg.ProductGroup,
+
+	}
 }
 
 func UpgradeConfig(cfgBytes []byte) ([]byte, error) {

@@ -21,6 +21,27 @@ import (
 	"text/template"
 )
 
+type RenderedProductDependencyProvider interface {
+	RenderedProductDependencies() ([]RenderedProductDependency, error)
+}
+
+type renderedProductDependencyProviderImpl struct {
+	params []ProductDependencyParam
+	versionProvider VersionProvider
+}
+
+func (r *renderedProductDependencyProviderImpl) RenderedProductDependencies() ([]RenderedProductDependency, error) {
+	var output []RenderedProductDependency
+	for _, param := range r.params {
+		rendered, err := param.RenderProductDependency(r.versionProvider)
+		if err != nil {
+			return nil, err
+		}
+		output = append(output, rendered)
+	}
+	return output, nil
+}
+
 // ProductDependencyParam represents a product dependency.
 type ProductDependencyParam struct {
 	ProductGroup string
@@ -37,6 +58,51 @@ type ProductDependencyParam struct {
 	MinimumVersion     string
 	MaximumVersion     string
 	RecommendedVersion string
+}
+
+func (p *ProductDependencyParam) RenderProductDependency(versionProvider VersionProvider) (RenderedProductDependency, error) {
+	renderedMinVersion, err := renderVersionTemplate(p.MinimumVersion, versionProvider)
+	if err != nil {
+		return RenderedProductDependency{}, err
+	}
+	if err := validateIsValidSLSVersion(renderedMinVersion); err != nil {
+		return RenderedProductDependency{}, err
+	}
+
+	renderedMaxVersion, err := renderVersionTemplate(p.MaximumVersion, versionProvider)
+	if err != nil {
+		return RenderedProductDependency{}, err
+	}
+	if err := validateIsValidSLSMatcher(renderedMaxVersion); err != nil {
+		return RenderedProductDependency{}, err
+	}
+
+	renderedRecommendedVersion, err := renderVersionTemplate(p.RecommendedVersion, versionProvider)
+	if err != nil {
+		return RenderedProductDependency{}, err
+	}
+	if renderedRecommendedVersion != "" {
+		if err := validateIsValidSLSVersion(renderedRecommendedVersion); err != nil {
+			return RenderedProductDependency{}, err
+		}
+	}
+
+	return RenderedProductDependency{
+		ProductGroup: p.ProductGroup,
+		ProductName: p.ProductGroup,
+		MinimumVersion: renderedMinVersion,
+		MaximumVersion: renderedMaxVersion,
+		RecommendedVersion: renderedRecommendedVersion,
+	}, nil
+}
+
+// RenderedProductDependency represents a concrete product dependency.
+type RenderedProductDependency struct {
+	ProductGroup       string `json:"product-group" yaml:"product-group"`
+	ProductName        string `json:"product-name" yaml:"product-name"`
+	MinimumVersion     string `json:"minimum-version" yaml:"minimum-version"`
+	MaximumVersion     string `json:"maximum-version" yaml:"maximum-version"`
+	RecommendedVersion string `json:"recommended-version,omitempty" yaml:"recommended-version,omitempty"`
 }
 
 type templateProjectVersion string
