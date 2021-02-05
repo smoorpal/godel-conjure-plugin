@@ -47,10 +47,21 @@ const (
 
 // IRLocatorConfig is configuration that specifies a locator. It can be specified as a YAML string or as a full YAML
 // object. If it is specified as a YAML string, then the string is used as the value of "Locator" and LocatorTypeAuto is
-// used as the value of the type.
+// used as the value of the type. ProductDependencies specifies the product dependencies that should be set on the
+// generated IR if non-empty.
 type IRLocatorConfig struct {
-	Type    LocatorType `yaml:"type"`
-	Locator string      `yaml:"locator"`
+	Type                LocatorType               `yaml:"type"`
+	Locator             string                    `yaml:"locator"`
+	ProductDependencies []ProductDependencyConfig `yaml:"product-dependencies"`
+}
+
+// ProductDependencyConfig represents a product dependency.
+type ProductDependencyConfig struct {
+	ProductGroup       string `json:"product-group" yaml:"product-group"`
+	ProductName        string `json:"product-name" yaml:"product-name"`
+	MinimumVersion     string `json:"minimum-version" yaml:"minimum-version"`
+	MaximumVersion     string `json:"maximum-version" yaml:"maximum-version"`
+	RecommendedVersion string `json:"recommended-version,omitempty" yaml:"recommended-version,omitempty"`
 }
 
 func (cfg *IRLocatorConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
