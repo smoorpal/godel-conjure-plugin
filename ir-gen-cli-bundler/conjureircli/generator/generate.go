@@ -27,7 +27,7 @@ import (
 	"github.com/go-bindata/go-bindata"
 )
 
-const conjureVersion = "4.14.1"
+const conjureVersion = "4.15.0"
 
 func main() {
 	versionFilePath := "../internal/version.go"
