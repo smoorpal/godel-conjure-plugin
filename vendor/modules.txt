@@ -53,7 +53,7 @@ github.com/nmiyake/pkg/dirs
 github.com/nmiyake/pkg/errorstringer
 # github.com/nwaples/rardecode v1.0.0
 github.com/nwaples/rardecode
-# github.com/palantir/conjure-go/v6 v6.5.0
+# github.com/palantir/conjure-go/v6 v6.5.0 => /Users/smoorman/Development/go/src/github.com/smoorpal/conjure-go
 ## explicit
 github.com/palantir/conjure-go/v6/conjure
 github.com/palantir/conjure-go/v6/conjure-api/conjure/spec
@@ -206,3 +206,4 @@ gopkg.in/cheggaaa/pb.v1
 gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 gopkg.in/yaml.v3
+# github.com/palantir/conjure-go/v6 => /Users/smoorman/Development/go/src/github.com/smoorpal/conjure-go

@@ -21,3 +21,5 @@ require (
 	golang.org/x/tools v0.1.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace github.com/palantir/conjure-go/v6 => /Users/smoorman/Development/go/src/github.com/smoorpal/conjure-go
